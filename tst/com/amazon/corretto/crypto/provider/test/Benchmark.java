@@ -84,7 +84,25 @@ public class Benchmark {
     }
 
     private static void benchHashes() throws NoSuchAlgorithmException {
-        int[] sizes = new int[] { 16, 32, 64, 128, 512, 1024, 4096, 8192, 16384, 65536 };
+        int[] sizes = new int[] {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 };
+
+        for (String hashFunction : new String[] { "MD5", "SHA-1", "SHA-256" }) {
+            for (Provider p : Security.getProviders()) {
+                if (p.getService("MessageDigest", hashFunction) != null) {
+                    MessageDigest digest = MessageDigest.getInstance(hashFunction, p);
+                    System.out.println("Testing " + digest.getAlgorithm() + " " + digest.getProvider().getName());
+                }
+                for (int size : sizes) {
+                    if (p.getService("MessageDigest", hashFunction) != null) {
+                        bench(size, MessageDigest.getInstance(hashFunction, p));
+                    }
+                }
+            }
+        }
+    }
+
+    private static void benchHashesSingleDigest() throws NoSuchAlgorithmException {
+        int[] sizes = new int[] {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 };
 
         for (String hashFunction : new String[] { "MD5", "SHA-1", "SHA-256" }) {
             for (Provider p : Security.getProviders()) {
@@ -262,8 +280,9 @@ public class Benchmark {
             cycles++;
         }
 
-        System.out.println("" + cycles + " blocks in " + seconds + " seconds for size " + size + ", algorithm "
-                + instance.getAlgorithm() + ", provider " + instance.getProvider().getName());
+        System.out.println("(" + size + ", " + cycles + "), ");
+        //System.out.println("" + cycles + " blocks in " + seconds + " seconds for size " + size + ", algorithm "
+        //        + instance.getAlgorithm() + ", provider " + instance.getProvider().getName());
     }
 
     private static void bench(AlgorithmParameterSpec spec, Object message, KeyPairGenerator instance) throws InvalidAlgorithmParameterException {
