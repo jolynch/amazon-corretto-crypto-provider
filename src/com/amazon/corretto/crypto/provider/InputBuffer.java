@@ -564,6 +564,13 @@ public class InputBuffer<T, S> implements Cloneable {
         //@ set bytesReceived = bytesReceived + length;
     }
 
+    public void update(final byte src) {
+        if (buffSize - buff.size() < 1) {
+            processBuffer(false);
+        }
+        buff.write(src);
+    }
+
     //@ public normal_behavior
     //@   requires canTakeData(bufferState);
     //@   requires arrayUpdater != null && finalHandler != null;

@@ -297,11 +297,7 @@ public class TemplateHmacSpi extends MacSpi {
 
     @Override
     protected synchronized void engineUpdate(byte val) {
-        if (oneByteArray == null) {
-            oneByteArray = new byte[1];
-        }
-        oneByteArray[0] = val;
-        engineUpdate(oneByteArray, 0, 1);
+        buffer.update(val);
     }
 
     @Override

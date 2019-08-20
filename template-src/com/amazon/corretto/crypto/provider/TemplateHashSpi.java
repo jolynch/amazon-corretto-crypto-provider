@@ -116,15 +116,6 @@ public final class TemplateHashSpi extends MessageDigestSpi implements Cloneable
             .withStateCloner((context) -> context.clone());
     }
 
-    @Override
-    protected void engineUpdate(byte input) {
-        if (oneByteArray == null) {
-            oneByteArray = new byte[1];
-        }
-        oneByteArray[0] = input;
-        engineUpdate(oneByteArray, 0, 1);
-    }
-
     // Note that routines that interact with the native buffer need to be synchronized, to ensure that we don't cause
     // heap corruption or other such fun shenanigans when multiple C threads try to manipulate native offsets at the
     // same time. For routines that don't interact with the native buffer directly, we don't synchronize them as this
@@ -135,6 +126,11 @@ public final class TemplateHashSpi extends MessageDigestSpi implements Cloneable
 
     // Note that we could probably still do better than this in native code by adding a simple atomic field to mark the
     // buffer as being busy.
+
+    @Override
+    protected synchronized void engineUpdate(byte input) {
+        buffer.update(input);
+    }
 
     @Override
     protected synchronized void engineUpdate(byte[] input, int offset, int length) {
